@@ -1,0 +1,282 @@
+####################################################
+###                   GENERAL                    ###
+####################################################
+
+# The default icon of a waypoint.
+# The available values are available on the following link:
+# https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+default-waypoint-icon: "GRASS_BLOCK"
+
+# The date format used when displaying dates. To customize the date format, see the following link:
+# https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/text/SimpleDateFormat.html
+date-format: "yyyy/MM/dd"
+
+# The frequency (in ticks) at which waypoints are displayed to the player.
+# Note: A lower value may increase lag on your server. Default value is 20 ticks (1 second).
+waypoint-display-frequency: 20
+
+# The maximum number of waypoints a player can create.
+# Set -1 to allow an unlimited number of waypoints.
+waypoint-limit: 50
+
+####################################################
+###                  DATABASE                    ###
+####################################################
+
+# Database settings.
+database:
+  # Database name.
+  # Note: The database is created automatically by the plugin.
+  database: "minewaypoints"
+  # Database host.
+  host: "localhost"
+  # Database port.
+  port: 3306
+  # Database username.
+  username: "root"
+  # Database password.
+  password: ""
+  # Database driver: sqlite, mysql, postgresql.
+  driver: "sqlite"
+
+####################################################
+###                PLACEHOLDERS                  ###
+####################################################
+
+# In some texts, some placeholders are available and can be replaced by their
+# corresponding value during the runtime. Below is a list of commonly used placeholders
+# in the plugin.
+
+# Waypoint placeholders:
+# - %waypoint_name%: Waypoint's name.
+# - %waypoint_coord_x%: Waypoint location x coordinate in the format #.##.
+# - %waypoint_coord_y%: Waypoint location y coordinate in the format #.##.
+# - %waypoint_coord_z%: Waypoint location z coordinate in the format #.##.
+# - %waypoint_world%: Waypoint location world name.
+# - %waypoint_owner_name%: Waypoint owner name.
+# - %waypoint_created_at%: Waypoint creation date.
+
+# Waypoint Share placeholders:
+# - %shared_with_name%: The name of the user the waypoint has been shared with.
+# - %shared_at%: Date at which the waypoint has been shared.
+
+####################################################
+###                   TEXTS                      ###
+####################################################
+
+# This section enables to customize all the messages sent by the plugin.
+permissions:
+    doorman.*:
+        description: Gives access to all waypoint commands
+        children:
+            command.waypoints: true
+            command.waypoints.create: true
+            command.waypoints.rename: true
+            command.waypoints.relocate: true
+            command.waypoints.share: true
+    command.waypoints:
+        description: Access to the /waypoints and /waypoints help commands
+        default: not op
+    command.waypoints.create:
+        description: Allows you to create waypoints
+        default: not op
+    command.waypoints.rename:
+        description: Access the /waypoints rename command
+        default: not op
+    command.waypoints.relocate:
+        description: Access the /waypoints relocate command
+        default: not op
+    command.waypoints.share:
+        description: Access the /waypoints share command
+        default: not op
+messages:
+  # Messages related to the /waypoints command.
+  command.waypoint:
+    # Message sent when showing player's waypoints.
+    show-waypoints: "&6>> &eOpening the waypoints menu."
+    # Command /waypoints help
+    help:
+      - "&6/waypoints create &e<waypoint_name> &7to create a new waypoint at your current location."
+      - "&6/waypoints rename &e<waypoint_name> <new_name> &7to rename a waypoint."
+      - "&6/waypoints relocate &e<waypoint_name> &7to replace the location of the waypoint by your current location."
+      - "&6/waypoints share &e<waypoint_name> <target_name> &7to share a waypoint with a player."
+  # Waypoint related messages.
+  waypoint:
+    create:
+      # Message sent when a waypoint has been successfully created.
+      # Available placeholders: All waypoint placeholders.
+      success: "&6>> &eThe waypoint &6%waypoint_name% &ehas been &asuccessfully &ecreated."
+    rename:
+      # Message sent when the waypoint has been successfully renamed.
+      # Available placeholders:
+      # - All waypoint placeholders.
+      # - %waypoint_old_name%: Old name of the waypoint.
+      success: "&6>> &eThe waypoint has been &asuccessfully &erenamed from &6%waypoint_old_name% &eto &6%waypoint_name%&e."
+    update-location:
+      # Message sent when the location of the waypoint has been successfully updated.
+      # Available placeholders: All waypoint placeholders.
+      success: "&6>> &eThe location of the waypoint has been &asuccessfully &eupdated."
+    icon-update:
+      # Message sent when the icon of the waypoint has been successfully updated.
+      # Available placeholders: All waypoint placeholders.
+      success: "&6>> &eThe icon of the waypoint has been &asuccessfully &eupdated."
+    delete:
+      # Message sent to the owner when the waypoint has been successfully deleted.
+      # Available placeholders: All waypoint placeholders.
+      success: "&6>> &eThe waypoint &6%waypoint_name% &ehas been &asuccessfully &edeleted."
+      # Message sent to online players the waypoint is shared with when it has been successfully deleted.
+      # Available placeholders: All waypoint placeholders.
+      to-shared-with: "&c>> The waypoint %waypoint_name% has been deleted by its owner and is no longer available."
+    sharing-request:
+      # Message sent to the owner when he sent a sharing request to a target to share one of its waypoints.
+      # Note: This message is a text component.
+      owner:
+        # Text displayed in the chat.
+        text: "&6>> &eYou sent a request to &6%target_name% &eto &ashare &eyour waypoint &6%waypoint_name%&e."
+        # Default text color.
+        color: "YELLOW"
+        extra:
+          space-1:
+            text: " "
+          cancel:
+            text: "[Cancel]"
+            color: "RED"
+            # Text shown on hover.
+            show-text: "&cClick to cancel"
+            # Command executed when a player clicks on the text in the chat.
+            run-command: "waypoints sharing-request cancel %share_request_id%"
+      # Message sent to the target when a player wants to share one of its waypoints with it.
+      # Note: This message is a text component.
+      target:
+        text: "&6>> %waypoint_owner_name% &ewants to &ashare &eits waypoint &6%waypoint_name% &ewith you."
+        color: "YELLOW"
+        extra:
+          space-1:
+            text: " "
+          accept:
+            text: "[Accept]"
+            color: "GREEN"
+            show-text: "&aClick to accept"
+            # Do not edit.
+            run-command: "waypoints sharing-request accept %share_request_id%"
+          space-2:
+            text: " "
+          cancel:
+            text: "[Cancel]"
+            color: "RED"
+            show-text: "&cClick to cancel"
+            # Do not edit.
+            run-command: "waypoints sharing-request cancel %share_request_id%"
+      accept:
+        # Message sent to the owner when the target accepted a sharing request.
+        # Available placeholders:
+        # - All waypoint placeholders.
+        # - %target_name%: Name of the player to share the waypoint with.
+        owner: "&6>> %target_name% &ehas &aaccepted &eyour waypoint sharing request for waypoint &6%waypoint_name%&e."
+        # Message sent to the target of a sharing request when it accepted it.
+        # Available placeholders: All waypoint placeholders.
+        target: "&6>> &eYou &aaccepted &ethe waypoint sharing request of &6%waypoint_owner_name% &efor the waypoint &6%waypoint_name%&e."
+      cancel:
+        # Message sent to the owner of the waypoint when the target cancelled the sharing request.
+        # Available placeholders:
+        # - All waypoint placeholders.
+        # - %target_name%: Name of the player to share the waypoint with.
+        by-target-to-owner: "&6>> %target_name% &ehas &ccancelled &eyour sharing request for waypoint &6%waypoint_name%&e."
+        # Message sent to the target when it cancelled a waypoint sharing request.
+        # Available placeholders:
+        # - All waypoint placeholders.
+        by-target-to-target: "&6>> &eYou &ccancelled &ethe sharing request of &6%waypoint_owner_name% &efor the waypoint &6%waypoint_name%&e."
+        # Message sent to the owner of the waypoint when it cancelled the sharing request.
+        # Available placeholders:
+        # - All waypoint placeholders.
+        # - %target_name%: Name of the player to share the waypoint with.
+        by-owner-to-owner: "&6>> &eYou &ccancelled &ethe sharing request of your waypoint &6%waypoint_name% &eto &6%target_name%&e."
+        # Message sent to the target when the owner of the waypoint cancelled the sharing request.
+        # Available placeholders:
+        # - All waypoint placeholders.
+        by-owner-to-target: "&6>> %waypoint_owner_name% &ccancelled &ethe sharing request of its waypoint &6%waypoint_name% &ewith you."
+    unshare:
+      # Message sent to the owner of a waypoint when he stopped sharing it with a player.
+      # Available placeholders: All waypoint share placeholders.
+      by-owner-to-owner: "&6>> The waypoint &6%waypoint_name% &ehas been &asuccessfully &eunshared with &6%target_name%&e."
+      # Message sent to the player a waypoint he shared with when its owner stopped sharing it with it.
+      # Available placeholders: All waypoint share placeholders.
+      by-owner-to-target: "&6>> &e%waypoint_owner_name% &cstopped sharing &ethe waypoint &6%waypoint_name% &ewith you."
+      # Message sent to the player a waypoint he shared when it removed the shared waypoint.
+      # Available placeholders: All waypoint share placeholders.
+      by-shared-with-to-shared-with: "&6>> &eThe waypoint &6%waypoint_name% &eis no longer &ashared &ewith you."
+    activation:
+      # Message sent to a player when it activates a waypoint manually.
+      # Available placeholders: All waypoint placeholders.
+      activated: "&6>> &eThe waypoint &6%waypoint_name% &ehas been &aactivated."
+      # Message sent to a player when he deactivated a waypoint manually.
+      # Available placeholders: All waypoint placeholders.
+      deactivated: "&6>> &eThe waypoint &6%waypoint_name% &ehas been &cdeactivated."
+  # Error messages.
+  errors:
+    # Generic error message when a non-identified error occurred.
+    generic: "&c>> An error occurred. Please, try again."
+    command:
+      # Message sent when the player does not have the permission to execute the command.
+      no-permission: "&c>> You don't have the required permission to execute this command."
+    player:
+      # Message sent when the targeted player cannot be found.
+      # Available placeholders: %target_name%.
+      target-not-found: "&c>> The player %target_name% cannot be found."
+    waypoint:
+      # Message sent when a player is trying to create a new waypoint but has reached the limit of waypoints it can create.
+      limit-reached: "&c>> You reached the maximum number of waypoints you can create."
+      # Message sent when the specified waypoint name is invalid.
+      # Available placeholders: %waypoint_name%.
+      invalid-name: "&c>> The waypoint name '%waypoint_name%' is invalid. It cannot exceed 32 characters."
+      # Message sent when a player is trying to change the location of a waypoint to another world.
+      # Available placeholders: %waypoint_world%.
+      invalid-world: "&c>> The world of the waypoint cannot be changed."
+      # Message sent when a player already has a waypoint with the same name.
+      # Available placeholders: %waypoint_name%.
+      name-already-exists: "&c>> A waypoint with the name %waypoint_name% already exists. Please, choose another name."
+      # Message sent when a player does not have any waypoint that matches the specified name.
+      # Available placeholders: %waypoint_name%.
+      name-not-found: "&c>> The waypoint %waypoint_name% cannot be found. Please, check the syntax and try again."
+      # Message sent to a player when he is trying to use a waypoint that does not exist.
+      not-found: "&c>> This waypoint does not exist."
+      # Message sent to a player when he is trying to accept a sharing request for a waypoint that has been already shared with him.
+      # Available placeholders: All waypoint placeholders.
+      already-shared-with-me: "&c>> This waypoint is already shared with you."
+      # Message sent to a player when he is trying share a waypoint that is already shared with a target.
+      # Available placeholders: All waypoint placeholders, %target_name%.
+      already-shared-with-target: "&c>> This waypoint is already shared with %target_name%."
+      # Message sent to a player when he is trying share a waypoint that has been already shared with the target.
+      # Available placeholders: All waypoint placeholders, %target_name%.
+      not-shared-with-target: "&c>> This waypoint is not shared with %target_name%."
+      # Message sent to a player when he is trying to access a waypoint he doesn't have access to.
+      no-access: "&c>> You do not have access to this waypoint. It is likely because its owner is no longer sharing it with you."
+      # Messages related to waypoint sharing requests.
+      sharing-request:
+        # Message sent when the specified sharing request id to confirm or cancel is invalid.
+        invalid-request-id: "&c>> The specified sharing request id is invalid."
+        # Message sent when the specified sharing request cannot be found.
+        not-found: "&c>> This sharing request does not exist or has expired."
+        # Message sent when a waypoint owner is trying to send a waypoint sharing request to itself.
+        # Available placeholders: All waypoint placeholders.
+        to-owner: "&c>> You cannot share a waypoint with yourself."
+
+
+# Texts displayed to indicate the direction to go to a waypoint to a player.
+direction:
+  north: "🠕"
+  south: "🠗"
+  west: "🠔"
+  east: "🠖"
+  north-west: "⬉"
+  north-east: "⬈"
+  south-west: "⬋"
+  south-east: "⬊"
+
+
+# Text displayed in the action bar of a player when a waypoint is activated.
+# Available placeholders:
+# - All waypoint placeholders.
+# - %waypoint_direction%: Direction to go to the waypoint.
+# - %waypoint_distance%: Distance to the waypoint in blocks.
+waypoint-display-actionbar: "&eWaypoint: &6%waypoint_name% &6| &eDirection: &5%waypoint_direction% &b(%waypoint_distance%m)"
